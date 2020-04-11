@@ -13,7 +13,7 @@ Tool to help me with dictionary tabs during "by-part" kind of chinese translatio
 ```
 
 It opens:
- * four BKRS browser tabs, one for each of comma-separated parts
  * one google translate for the whole sentence
  * one yabla tab for the whole sentence
+ * four BKRS browser tabs, one for each of comma-separated parts
  
