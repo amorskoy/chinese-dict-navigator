@@ -24,8 +24,12 @@ object NavigateDicts {
 
   def main(args: Array[String]): Unit = {
     val params = parseParams(args)
-    val sentence = URLEncoder.encode(params.sentence, "utf-8")
-    val parts = params.sentence.split(",").map(part => URLEncoder.encode(part, "utf-8") )
+    val sentence = URLEncoder.encode(params.sentence.replace(" ", ""), "utf-8")
+
+    val parts = params.sentence
+      .replace(" ", "")
+      .split(",")
+      .map(part => URLEncoder.encode(part, "utf-8") )
 
     val googleUri = new URI(googleBase + sentence)
     val yablaUri = new URI(yablaBase + sentence)
