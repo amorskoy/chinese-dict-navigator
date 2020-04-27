@@ -28,7 +28,7 @@ object NavigateDicts {
 
     val parts = params.sentence
       .replace(" ", "")
-      .split("[,:]")
+      .split("[,:;]")
       .map(part => URLEncoder.encode(part, "utf-8") )
 
     val googleUri = new URI(googleBase + sentence)
