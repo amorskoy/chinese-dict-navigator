@@ -24,15 +24,16 @@ object NavigateDicts {
 
   def main(args: Array[String]): Unit = {
     val params = parseParams(args)
-    val sentence = URLEncoder.encode(params.sentence.replace(" ", ""), "utf-8")
+    val sentence = URLEncoder.encode(params.sentence, "utf-8")
+    //For Yabla we want to allow it's own segmentation to compare within edge cases
+    val sentenceNoSegments = URLEncoder.encode(params.sentence.replace(" ", ""), "utf-8")
 
     val parts = params.sentence
-      .replace(" ", "")
       .split("[,:;]")
       .map(part => URLEncoder.encode(part, "utf-8") )
 
     val googleUri = new URI(googleBase + sentence)
-    val yablaUri = new URI(yablaBase + sentence)
+    val yablaUri = new URI(yablaBase + sentenceNoSegments)
     val bkrsUri = parts.map(part => new URI(bkrsBase + part)).toList
 
     val toNavigate = List(googleUri, yablaUri) ++ bkrsUri

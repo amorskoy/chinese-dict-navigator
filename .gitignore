@@ -47,3 +47,5 @@ project/plugins/project/
 .cache
 .lib/
 
+#Stanford Segmenter data
+data/
