@@ -1,10 +1,14 @@
 package org.bitheaven
 
 import java.io._
-import java.util
 import java.util.Properties
+
 import edu.stanford.nlp.ie.crf.CRFClassifier
 import edu.stanford.nlp.ling.CoreLabel
+
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.parallel.CollectionConverters._
+import scala.collection.parallel.ParIterable
 import scala.jdk.CollectionConverters._
 
 /** This is a very simple demo of calling the Chinese Word Segmenter
@@ -23,7 +27,7 @@ object InteractiveSegmenter {
   private val basedir = System.getProperty("SegDemo", "data")
 
   private def segment(sample: String,
-                      classifiers: Iterable[CRFClassifier[CoreLabel]]): Iterable[String] = {
+                      classifiers: ParIterable[CRFClassifier[CoreLabel]]): ParIterable[String] = {
     classifiers.map(segmenter => {
       segmenter.segmentString(sample).asScala.mkString(" ")
     })
@@ -38,12 +42,17 @@ object InteractiveSegmenter {
     props.setProperty("serDictionary", basedir + "/dict-chris6.ser.gz")
     props.setProperty("inputEncoding", "UTF-8")
     props.setProperty("sighanPostProcessing", "true")
-    val segmenterCTB = new CRFClassifier[CoreLabel](props)
-    val segmenterPKU = new CRFClassifier[CoreLabel](props)
-    segmenterCTB.loadClassifierNoExceptions(basedir + "/ctb.gz", props)
-    segmenterPKU.loadClassifierNoExceptions(basedir + "/pku.gz", props)
 
-    segmenterCTB :: segmenterPKU :: Nil
+    val dictsLocations = Array(basedir + "/ctb.gz", basedir + "/pku.gz").par
+
+    val segmenters = dictsLocations.map(dictLocation => {
+      val segmenter = new CRFClassifier[CoreLabel](props)
+      segmenter.loadClassifierNoExceptions(dictLocation, props)
+
+      segmenter
+    })
+
+    segmenters
   }
 
   @throws[Exception]
