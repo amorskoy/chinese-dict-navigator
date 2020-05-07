@@ -29,13 +29,11 @@ object InteractiveSegmenter {
     })
   }
 
-  @throws[Exception]
-  def main(args: Array[String]): Unit = {
-    System.setOut(new PrintStream(System.out, true, "utf-8"))
+  private def makeSegmenters() = {
     val props = new Properties
     props.setProperty("sighanCorporaDict", basedir)
-     props.setProperty("NormalizationTable", "data/norm.simp.utf8");
-     props.setProperty("normTableEncoding", "UTF-8");
+    props.setProperty("NormalizationTable", "data/norm.simp.utf8");
+    props.setProperty("normTableEncoding", "UTF-8");
     // below is needed because CTBSegDocumentIteratorFactory accesses it
     props.setProperty("serDictionary", basedir + "/dict-chris6.ser.gz")
     props.setProperty("inputEncoding", "UTF-8")
@@ -44,7 +42,14 @@ object InteractiveSegmenter {
     val segmenterPKU = new CRFClassifier[CoreLabel](props)
     segmenterCTB.loadClassifierNoExceptions(basedir + "/ctb.gz", props)
     segmenterPKU.loadClassifierNoExceptions(basedir + "/pku.gz", props)
-    val segmenters = segmenterCTB :: segmenterPKU :: Nil
+
+    segmenterCTB :: segmenterPKU :: Nil
+  }
+
+  @throws[Exception]
+  def main(args: Array[String]): Unit = {
+    System.setOut(new PrintStream(System.out, true, "utf-8"))
+    val segmenters = makeSegmenters()
 
     println("Input 'x' for exit. " + System.lineSeparator())
     Iterator.continually(scala.io.StdIn.readLine)
