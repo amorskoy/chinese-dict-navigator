@@ -64,7 +64,7 @@ object InteractiveSegmenter {
     Iterator.continually(scala.io.StdIn.readLine)
       .takeWhile(_ != "x")
       .foreach(sample => {
-        val segmentedCases = segment(sample, segmenters)
+        val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
         val ctbCase = segmentedCases.head
 
         NavigateDicts.main(Array(ctbCase))
