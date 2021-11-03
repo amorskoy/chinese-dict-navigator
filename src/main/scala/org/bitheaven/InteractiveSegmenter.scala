@@ -2,9 +2,9 @@ package org.bitheaven
 
 import java.io._
 import java.util.Properties
-
 import edu.stanford.nlp.ie.crf.CRFClassifier
 import edu.stanford.nlp.ling.CoreLabel
+import org.bitheaven.TranslateMode.{Regular, Systran, TranslateMode}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.CollectionConverters._
@@ -25,6 +25,10 @@ import scala.jdk.CollectionConverters._
  */
 object InteractiveSegmenter {
   private val basedir = System.getProperty("SegDemo", "data")
+
+  /** Translation mode */
+  val defaultMode = Regular
+  var mode: TranslateMode = defaultMode
 
   private def segment(sample: String,
                       classifiers: ParIterable[CRFClassifier[CoreLabel]]): ParIterable[String] = {
@@ -55,21 +59,48 @@ object InteractiveSegmenter {
     segmenters
   }
 
+  def getNavigationStrategy(): NavigationStrategy = mode match {
+    case Regular => new RegularNavigation
+    case Systran => new SystranNavigation
+  }
+
+  def printLine(line: String): Unit = println(line + System.lineSeparator())
+
   @throws[Exception]
   def main(args: Array[String]): Unit = {
     System.setOut(new PrintStream(System.out, true, "utf-8"))
     val segmenters = makeSegmenters()
 
-    println("Input 'x' for exit. " + System.lineSeparator())
+    printLine(
+      """Input:
+        |     'x' for exit.
+        |     's' to enable navigate to Systran once for the next translation""".stripMargin)
     Iterator.continually(scala.io.StdIn.readLine)
-      .takeWhile(_ != "x")
-      .foreach(sample => {
-        val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
-        val ctbCase = segmentedCases.head
+      .takeWhile(_.trim() != "x")
+      .foreach {
+        case "s" =>
+          mode = Systran
+          printLine("Enabling systran once for the next input")
+        case sample =>
+          val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
+          val ctbCase = segmentedCases.head
 
-        NavigateDicts.main(Array(ctbCase))
-        segmentedCases.foreach(println)
-      })
+          getNavigationStrategy().navigateSentence(ctbCase)
+          segmentedCases.foreach(println)
+
+          // We have only Systran mode, which enabled once per input and then resets
+          mode = defaultMode
+      }
 
   }
+}
+
+object TranslateMode extends Enumeration {
+  type TranslateMode = Value
+
+  /**
+   * Regular - segment and navigate Google, Yabla, BKRS
+   * Systran - Regular + navigate Systran
+   */
+  val Regular, Systran = Value
 }
