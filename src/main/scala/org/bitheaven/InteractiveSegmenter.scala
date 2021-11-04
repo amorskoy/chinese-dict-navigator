@@ -25,10 +25,7 @@ import scala.jdk.CollectionConverters._
  */
 object InteractiveSegmenter {
   private val basedir = System.getProperty("SegDemo", "data")
-
-  /** Translation mode */
-  val defaultMode = Regular
-  var mode: TranslateMode = defaultMode
+  var lastSegments = ""
 
   private def segment(sample: String,
                       classifiers: ParIterable[CRFClassifier[CoreLabel]]): ParIterable[String] = {
@@ -59,7 +56,7 @@ object InteractiveSegmenter {
     segmenters
   }
 
-  def getNavigationStrategy(): NavigationStrategy = mode match {
+  def getNavigationStrategy(mode: TranslateMode): NavigationStrategy = mode match {
     case Regular => new RegularNavigation
     case Systran => new SystranNavigation
   }
@@ -74,22 +71,22 @@ object InteractiveSegmenter {
     printLine(
       """Input:
         |     'x' for exit.
-        |     's' to enable navigate to Systran once for the next translation""".stripMargin)
+        |     's' to open Systran for the previous input""".stripMargin)
     Iterator.continually(scala.io.StdIn.readLine)
       .takeWhile(_.trim() != "x")
       .foreach {
         case "s" =>
-          mode = Systran
-          printLine("Enabling systran once for the next input")
+          printLine("Opening Systran for the previous input")
+          getNavigationStrategy(Systran).navigateSentence(lastSegments)
         case sample =>
           val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
           val ctbCase = segmentedCases.head
 
-          getNavigationStrategy().navigateSentence(ctbCase)
+          getNavigationStrategy(Regular).navigateSentence(ctbCase)
           segmentedCases.foreach(println)
 
           // We have only Systran mode, which enabled once per input and then resets
-          mode = defaultMode
+          lastSegments = ctbCase
       }
 
   }
@@ -100,7 +97,7 @@ object TranslateMode extends Enumeration {
 
   /**
    * Regular - segment and navigate Google, Yabla, BKRS
-   * Systran - Regular + navigate Systran
+   * Systran - Navigate Systran on previous input
    */
   val Regular, Systran = Value
 }

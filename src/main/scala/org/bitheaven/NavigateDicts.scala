@@ -42,12 +42,12 @@ class RegularNavigation extends NavigationStrategy {
 }
 
 
-class SystranNavigation extends RegularNavigation {
+class SystranNavigation extends NavigationStrategy {
   val systranBase = "https://translate.systran.net/translationTools/text?source=zh&target=en&input="
 
   override def getUriList(inputSentence: String): List[URI] = {
     val systranUri = new URI(systranBase + normalize(inputSentence))
 
-    super.getUriList(inputSentence) ++ List(systranUri)
+    List(systranUri)
   }
 }
