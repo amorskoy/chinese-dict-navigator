@@ -48,4 +48,4 @@ project/plugins/project/
 .lib/
 
 #Stanford Segmenter data
-data/
+#./data/
