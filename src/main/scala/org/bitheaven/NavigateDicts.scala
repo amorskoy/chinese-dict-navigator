@@ -36,7 +36,7 @@ class RegularNavigation extends NavigationStrategy {
     val googleResolvedUri = new URI(googleBase + normalize(resolvedSentence))
     val yablaUri = new URI(yablaBase + sentenceNoSegments)
 
-    val parts = resolvedSentence
+    val parts = inputSentence
       .split("[,:;]")
       .map(part => URLEncoder.encode(part, "utf-8") )
 
