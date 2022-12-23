@@ -27,13 +27,13 @@ class RegularNavigation extends NavigationStrategy {
 
   override def getUriList(inputSentence: String): List[URI] = {
     val sentence = normalize(inputSentence)
-    val resolvedSentence = normalize(resolveByDict(inputSentence))
+    val resolvedSentence = resolveByDict(inputSentence)
 
     //For Yabla we want to allow it's own segmentation to compare within edge cases
     val sentenceNoSegments = URLEncoder.encode(inputSentence.replace(" ", ""), "utf-8")
 
     val googleUri = new URI(googleBase + sentence)
-    val googleResolvedUri = new URI(googleBase + resolvedSentence)
+    val googleResolvedUri = new URI(googleBase + normalize(resolvedSentence))
     val yablaUri = new URI(yablaBase + sentenceNoSegments)
 
     val parts = resolvedSentence
