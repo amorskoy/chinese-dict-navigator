@@ -26,6 +26,7 @@ class FileDictionary(DictionaryDB):
         pos = 0
         sample_len = len(sample)
         out = []
+        res = None
 
         while pos < sample_len:
             for i in reversed(range(self.max_lookup_len)):
@@ -38,8 +39,9 @@ class FileDictionary(DictionaryDB):
                     break
 
             # if not found = preserve original symbol
-            out.append(sample[pos])
-            pos = pos + 1
+            if not res:
+                out.append(sample[pos])
+                pos = pos + 1
 
         return "".join(out)
 
