@@ -30,7 +30,7 @@ class RegularNavigation extends NavigationStrategy {
   override def getUriList(inputSentence: String): List[URI] = {
     val resolvedSentence = resolveByDict(inputSentence)
 
-    val segmenters = makeSegmenters()
+    val segmenters = InteractiveSegmenter.segmenters
 
     val segmentedCases = segment(inputSentence, segmenters).map(_.replace(" , ", ","))
     val segmentedResolvedCases = segment(resolvedSentence, segmenters).map(_.replace(" , ", ","))

@@ -56,6 +56,11 @@ object InteractiveSegmenter {
     segmenters
   }
 
+  var segmenters: ParIterable[CRFClassifier[CoreLabel]] = null
+  def setSegmenters(segmenters: ParIterable[CRFClassifier[CoreLabel]]) = {
+    InteractiveSegmenter.segmenters = segmenters
+  }
+
   def getNavigationStrategy(mode: TranslateMode): NavigationStrategy = mode match {
     case Regular => new RegularNavigation
     case Systran => new SystranNavigation
@@ -66,7 +71,7 @@ object InteractiveSegmenter {
   @throws[Exception]
   def main(args: Array[String]): Unit = {
     System.setOut(new PrintStream(System.out, true, "utf-8"))
-    val segmenters = makeSegmenters()
+    setSegmenters(makeSegmenters())
 
     printLine(
       """Input:
