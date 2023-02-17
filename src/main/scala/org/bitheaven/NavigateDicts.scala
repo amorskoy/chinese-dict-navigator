@@ -1,5 +1,7 @@
 package org.bitheaven
 
+import org.bitheaven.InteractiveSegmenter.{makeSegmenters, segment}
+
 import java.awt.Desktop
 import java.net.{URI, URLEncoder}
 import sys.process._
@@ -26,14 +28,24 @@ class RegularNavigation extends NavigationStrategy {
   val bkrsBase = "https://bkrs.info/slovo.php?ch="
 
   override def getUriList(inputSentence: String): List[URI] = {
-    val sentence = normalize(inputSentence)
     val resolvedSentence = resolveByDict(inputSentence)
+
+    val segmenters = makeSegmenters()
+
+    val segmentedCases = segment(inputSentence, segmenters).map(_.replace(" , ", ","))
+    val segmentedResolvedCases = segment(resolvedSentence, segmenters).map(_.replace(" , ", ","))
+
+
+    val ctbCase = segmentedCases.head
+    val ctbResolvedCase = segmentedResolvedCases.head
+
+    val sentence = normalize(ctbCase)
 
     //For Yabla we want to allow it's own segmentation to compare within edge cases
     val sentenceNoSegments = URLEncoder.encode(inputSentence.replace(" ", ""), "utf-8")
 
     val googleUri = new URI(googleBase + sentence)
-    val googleResolvedUri = new URI(googleBase + normalize(resolvedSentence))
+    val googleResolvedUri = new URI(googleBase + normalize(ctbResolvedCase))
     val yablaUri = new URI(yablaBase + sentenceNoSegments)
 
     val parts = inputSentence

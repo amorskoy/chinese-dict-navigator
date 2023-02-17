@@ -27,14 +27,14 @@ object InteractiveSegmenter {
   private val basedir = System.getProperty("SegDemo", "data")
   var lastSegments = ""
 
-  private def segment(sample: String,
+  def segment(sample: String,
                       classifiers: ParIterable[CRFClassifier[CoreLabel]]): ParIterable[String] = {
     classifiers.map(segmenter => {
       segmenter.segmentString(sample).asScala.mkString(" ")
     })
   }
 
-  private def makeSegmenters() = {
+  def makeSegmenters() = {
     val props = new Properties
     props.setProperty("sighanCorporaDict", basedir)
     props.setProperty("NormalizationTable", "data/norm.simp.utf8");
@@ -79,14 +79,14 @@ object InteractiveSegmenter {
           printLine("Opening Systran for the previous input")
           getNavigationStrategy(Systran).navigateSentence(lastSegments)
         case sample =>
-          val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
-          val ctbCase = segmentedCases.head
+          // val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
+          // val ctbCase = segmentedCases.head
 
-          getNavigationStrategy(Regular).navigateSentence(ctbCase)
-          segmentedCases.foreach(println)
+          getNavigationStrategy(Regular).navigateSentence(sample)
+          //segmentedCases.foreach(println)
 
           // We have only Systran mode, which enabled once per input and then resets
-          lastSegments = ctbCase
+          // lastSegments = ctbCase
       }
 
   }
