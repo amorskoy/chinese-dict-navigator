@@ -45,7 +45,8 @@ class RegularNavigation extends NavigationStrategy {
     val sentenceNoSegments = URLEncoder.encode(inputSentence.replace(" ", ""), "utf-8")
 
     val googleUri = new URI(googleBase + sentence)
-    val googleResolvedUri = new URI(googleBase + normalize(ctbResolvedCase))
+    val googleResolvedSegmentedUri = new URI(googleBase + normalize(ctbResolvedCase))
+    val googleResolvedUri = new URI(googleBase + normalize(resolvedSentence))
     val yablaUri = new URI(yablaBase + sentenceNoSegments)
 
     val parts = inputSentence
@@ -54,7 +55,7 @@ class RegularNavigation extends NavigationStrategy {
 
     val bkrsUri = parts.map(part => new URI(bkrsBase + part)).toList
 
-    List(googleUri, googleResolvedUri, yablaUri) ++ bkrsUri
+    List(googleUri, googleResolvedSegmentedUri, googleResolvedUri, yablaUri) ++ bkrsUri
   }
 
   def resolveByDict(inputSentence: String): String = {
