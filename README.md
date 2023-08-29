@@ -1,6 +1,12 @@
 # chinese-dict-navigator
 Tool to help me with dictionary tabs during "by-part" kind of chinese translation 
 
+## Install
+Clone ths repo
+```bash
+    # Fill 'data' and 'deps' dirs
+    git lfs pull
+```
 
 ## Usage
 ```bash
