@@ -27,6 +27,5 @@ It opens:
 ```shell
 ./run_splitter.sh
 ```
-And then paste your text, interactive.
-
+And then paste your text, press CTRL+d end input and start splitting.
 It will add newline to each sentence separator and copy output into clipboard using `xclip`
