@@ -83,6 +83,7 @@ object InteractiveSegmenter {
         case "s" =>
           printLine("Opening Systran for the previous input")
           getNavigationStrategy(Systran).navigateSentence(lastSegments)
+        case "" =>
         case sample =>
           // val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
           // val ctbCase = segmentedCases.head
