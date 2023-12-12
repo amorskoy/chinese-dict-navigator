@@ -1,13 +1,12 @@
 package org.bitheaven
 
-import java.io._
-import java.util.Properties
 import edu.stanford.nlp.ie.crf.CRFClassifier
 import edu.stanford.nlp.ling.CoreLabel
 import org.bitheaven.TranslateMode.{Regular, Systran, TranslateMode}
 
-import java.net.{ServerSocket, Socket}
-import scala.collection.mutable.ArrayBuffer
+import java.io._
+import java.net.ServerSocket
+import java.util.Properties
 import scala.collection.parallel.CollectionConverters._
 import scala.collection.parallel.ParIterable
 import scala.jdk.CollectionConverters._
