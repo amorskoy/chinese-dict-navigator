@@ -6,6 +6,7 @@ import edu.stanford.nlp.ie.crf.CRFClassifier
 import edu.stanford.nlp.ling.CoreLabel
 import org.bitheaven.TranslateMode.{Regular, Systran, TranslateMode}
 
+import java.net.{ServerSocket, Socket}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.CollectionConverters._
 import scala.collection.parallel.ParIterable
@@ -24,6 +25,8 @@ import scala.jdk.CollectionConverters._
  * @author Christopher Manning
  */
 object InteractiveSegmenter {
+  val NET_PORT = 8888
+
   private val basedir = System.getProperty("SegDemo", "data")
   var lastSegments = ""
 
@@ -68,8 +71,27 @@ object InteractiveSegmenter {
 
   def printLine(line: String): Unit = println(line + System.lineSeparator())
 
+  def handleMessage(message: String) = message match {
+    case "s" =>
+      printLine("Opening Systran for the previous input")
+      getNavigationStrategy(Systran).navigateSentence(lastSegments)
+    case "" =>
+    case sample =>
+      // val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
+      // val ctbCase = segmentedCases.head
+
+      getNavigationStrategy(Regular).navigateSentence(sample)
+    //segmentedCases.foreach(println)
+
+    // We have only Systran mode, which enabled once per input and then resets
+    // lastSegments = ctbCase
+  }
+
   @throws[Exception]
   def main(args: Array[String]): Unit = {
+    val mode = args(0)
+    printLine(mode)
+
     System.setOut(new PrintStream(System.out, true, "utf-8"))
     setSegmenters(makeSegmenters())
 
@@ -77,23 +99,27 @@ object InteractiveSegmenter {
       """Input:
         |     'x' for exit.
         |     's' to open Systran for the previous input""".stripMargin)
-    Iterator.continually(scala.io.StdIn.readLine)
-      .takeWhile(_.trim() != "x")
-      .foreach {
-        case "s" =>
-          printLine("Opening Systran for the previous input")
-          getNavigationStrategy(Systran).navigateSentence(lastSegments)
-        case "" =>
-        case sample =>
-          // val segmentedCases = segment(sample, segmenters).map(_.replace(" , ", ","))
-          // val ctbCase = segmentedCases.head
 
-          getNavigationStrategy(Regular).navigateSentence(sample)
-          //segmentedCases.foreach(println)
+    mode match {
+      case "interactive" =>
+        Iterator.continually(scala.io.StdIn.readLine)
+          .takeWhile(_.trim() != "x")
+          .foreach(handleMessage)
 
-          // We have only Systran mode, which enabled once per input and then resets
-          // lastSegments = ctbCase
-      }
+      case "network" =>
+        val ss = new ServerSocket(NET_PORT)
+        val socket = ss.accept()
+        val in = new BufferedReader(new InputStreamReader(socket.getInputStream))
+
+        Iterator.continually(in.readLine())
+          .takeWhile(_.trim() != "x")
+          .foreach(handleMessage)
+
+        socket.close()
+        ss.close()
+
+      case _ => printLine(s"Unknown mode: $mode")
+    }
 
   }
 }
