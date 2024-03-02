@@ -1,11 +1,14 @@
 package org.bitheaven
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import edu.stanford.nlp.ie.crf.CRFClassifier
 import edu.stanford.nlp.ling.CoreLabel
 import org.bitheaven.TranslateMode.{Regular, Systran, TranslateMode}
 
 import java.io._
-import java.net.ServerSocket
+import java.net.{ServerSocket, Socket}
 import java.util.Properties
 import scala.collection.parallel.CollectionConverters._
 import scala.collection.parallel.ParIterable
@@ -86,6 +89,23 @@ object InteractiveSegmenter {
     // lastSegments = ctbCase
   }
 
+  def networkMessage(message: String, socket: Socket): Unit = {
+    val stream = socket.getOutputStream
+
+    val msg = getNavigationStrategy(Regular).decorateSentence(message)
+
+    val mapper = JsonMapper.builder()
+      .addModule(DefaultScalaModule)
+      .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
+      .build()
+
+    val out_str = mapper.writeValueAsString(msg)
+    printLine(out_str)
+
+    stream.write((out_str+"\n").getBytes)
+
+  }
+
   @throws[Exception]
   def main(args: Array[String]): Unit = {
     val mode = args(0)
@@ -111,8 +131,7 @@ object InteractiveSegmenter {
         val in = new BufferedReader(new InputStreamReader(socket.getInputStream))
 
         Iterator.continually(in.readLine())
-          .takeWhile(_.trim() != "x")
-          .foreach(handleMessage)
+          .foreach(m => networkMessage(m, socket))
 
         socket.close()
         ss.close()

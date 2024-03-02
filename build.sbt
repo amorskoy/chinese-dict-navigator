@@ -13,3 +13,7 @@ libraryDependencies += "stanford" % "segmenter" % "3.9.2" %
 
 libraryDependencies +=
   "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+
+libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.3"
+
+
